@@ -1,20 +1,15 @@
-// import React from "react";
-
-// export default function MidArea() {
-//   return <div className="flex-1 h-full overflow-auto">{"mid area"} </div>;
-// }
 import React, { useEffect } from "react";
 import Icon from "./Icon";
 
-// Collision detection: checks if two sprites are "touching" (within a threshold)
+
 const detectTouch = (sprite1, sprite2) => {
   const distanceX = Math.abs(sprite1.x - sprite2.x);
   const distanceY = Math.abs(sprite1.y - sprite2.y);
-  const threshold = 50; // Define the threshold for the sprites to "touch"
+  const threshold = 50;
   return distanceX < threshold && distanceY < threshold;
 };
 
-// Swapping the animations between two sprites
+
 const swapAnimationsOnTouch = (sprite1, sprite2, setSprites, sprites) => {
   setSprites(
     sprites.map((sprite) => {
@@ -38,26 +33,26 @@ export default function MidArea({
   resetSprites,
   setSprites,
 }) {
-  // Ensure sprites are available before rendering
+  
   if (!sprites || sprites.length === 0) {
     return <div>No sprites available</div>;
   }
 
-  // Detect collision (touch) after sprite positions are updated
+ 
   useEffect(() => {
-    // Loop over all pairs of sprites to check for collisions
+    
     for (let i = 0; i < sprites.length; i++) {
       for (let j = i + 1; j < sprites.length; j++) {
         const sprite1 = sprites[i];
         const sprite2 = sprites[j];
         
         if (detectTouch(sprite1, sprite2)) {
-          // If the sprites are "touching", swap their animations
+         
           swapAnimationsOnTouch(sprite1, sprite2, setSprites, sprites);
         }
       }
     }
-  }, [sprites]); // Trigger this check every time the sprite positions are updated
+  }, [sprites]); 
 
   return (
     <div className="flex-1 h-full overflow-auto p-4 relative">
@@ -125,7 +120,7 @@ export default function MidArea({
       )}
 
       <button
-        onClick={resetSprites} // This triggers the resetSprites function
+        onClick={resetSprites} 
         className="bg-green-500 text-white hover:bg-green-600 rounded-full p-3 w-10 h-10 flex items-center justify-center absolute top-0 right-0 mt-4 mr-4"
       >
         <img
