@@ -180,6 +180,7 @@
 import React from "react";
 import { useDrop } from "react-dnd";
 import Icon from "./Icon";
+import { FaTrash } from "react-icons/fa";
 
 export default function MidArea({
   sprites,
@@ -257,7 +258,7 @@ export default function MidArea({
                     onClick={() => removeAnimation(activeSprite.id, animation.id)}
                     className="bg-red-500 text-white hover:bg-red-700 rounded-full p-2 w-8 h-8 flex items-center justify-center absolute top-0 right-0 mt-2 mr-2"
                   >
-                    <Icon name="trash" size={15} />
+                    <FaTrash name="trash" size={15} />
                   </button>
                 </div>
               ))}
@@ -267,19 +268,17 @@ export default function MidArea({
       )}
 
       {/* Green Half Arrow Play Symbol in the Top-Right */}
-      <button
-        onClick={resetSprites} // This triggers the resetSprites function
-        className="bg-green-500 text-white hover:bg-green-600 rounded-full p-3 w-10 h-10 flex items-center justify-center absolute top-0 right-0 mt-4 mr-4"
-      >
-        <img
-          src="https://scratch.mit.edu/static/blocks-media/default/rotate-right.svg" // Path to your SVG image
-          alt="Rotate Right"
-          className="w-6 h-6 text-white"
-        />
-      </button>
+      {isOver && (
+        <div className="absolute top-2 right-2 p-2 bg-green-500 text-white rounded-full">
+          <span className="font-semibold">Play</span>
+        </div>
+      )}
     </div>
   );
 }
+
+
+
 
 
 

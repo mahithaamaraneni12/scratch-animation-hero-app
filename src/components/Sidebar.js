@@ -90,8 +90,8 @@ export default function Sidebar({ addAnimation, addSprite, resetSprites, repeatL
     { name: "Turn -15 degrees", type: "turn", value: -15, icon: "arrow-left" },
     { name: "Go to x: 0 y: 0", type: "goto", x: 0, y: 0 },
     { name: "Go to random position", type: "goto", random: true },
-    { name: "Say Hello", type: "say", message: "Hello" },
-    { name: "Say Hello for 1 second", type: "say", message: "Hello", duration: 1000 },
+    // { name: "Say Hello", type: "say", message: "Hello" },
+    // { name: "Say Hello for 1 second", type: "say", message: "Hello", duration: 1000 },
   ];
 
   const handleAddAnimation = (animation) => {

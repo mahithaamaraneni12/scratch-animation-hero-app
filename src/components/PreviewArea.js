@@ -10,29 +10,40 @@ export default function PreviewArea({
   const animationRef = useRef();
   const lastTimeRef = useRef(0);
 
- 
   const areTouching = (sprite1, sprite2) => {
     const distanceX = Math.abs(sprite1.x - sprite2.x);
     const distanceY = Math.abs(sprite1.y - sprite2.y);
-    const threshold = 50; 
+    const threshold = 50;
     return distanceX < threshold && distanceY < threshold;
   };
 
-  
   const handleCollisionAndSwap = (sprites) => {
     const newSprites = [...sprites];
+    let heroIndex = -1;
+
     for (let i = 0; i < newSprites.length; i++) {
       for (let j = i + 1; j < newSprites.length; j++) {
         const a = newSprites[i];
         const b = newSprites[j];
+
         if (areTouching(a, b)) {
           const temp = [...a.animations];
           newSprites[i].animations = [...b.animations];
           newSprites[j].animations = temp;
+
+          // Mark the first sprite as hero
+          newSprites[i].isHero = true;
+          newSprites[j].isHero = false;
+
+          heroIndex = i;
         }
       }
     }
-    return newSprites;
+
+    return newSprites.map((s, idx) => ({
+      ...s,
+      isHero: idx === heroIndex,
+    }));
   };
 
   useEffect(() => {
@@ -75,7 +86,6 @@ export default function PreviewArea({
             return newSprite;
           });
 
-          
           updatedSprites = handleCollisionAndSwap(updatedSprites);
           return updatedSprites;
         });
@@ -92,12 +102,12 @@ export default function PreviewArea({
 
   return (
     <div className="relative w-full h-full" style={{ minHeight: "500px" }}>
-      <button
+      {/* <button
         className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded z-10"
         onClick={() => setIsPlaying(!isPlaying)}
       >
         {isPlaying ? "Stop" : "Play"}
-      </button>
+      </button> */}
 
       {sprites.map((sprite) => (
         <div
@@ -107,10 +117,14 @@ export default function PreviewArea({
             left: "50%",
             top: "50%",
             transform: `translate(calc(${sprite.x}px - 50%), calc(${sprite.y}px - 50%)) rotate(${sprite.rotation}deg)`,
+            filter: sprite.isHero ? "drop-shadow(0 0 10px gold)" : "none",
+            zIndex: sprite.isHero ? 10 : 1,
           }}
         >
           <CatSprite />
-          <div className="text-xs text-center mt-1">{sprite.name}</div>
+          <div className={`text-xs text-center mt-1 ${sprite.isHero ? 'text-yellow-500 font-bold' : ''}`}>
+            {sprite.name}{sprite.isHero ? ' ⭐' : ''}
+          </div>
         </div>
       ))}
     </div>

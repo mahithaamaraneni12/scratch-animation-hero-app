@@ -244,20 +244,39 @@ export default function App() {
     }
   };
 
+  // const removeAnimation = (spriteId, animationId) => {
+  //   setSprites(
+  //     sprites.map((sprite) => {
+  //       if (sprite.id === spriteId) {
+  //         return {
+  //           ...sprite,
+  //           animations: sprite.animations.filter((anim) => anim.id !== animationId),
+  //         };
+  //       }
+  //       return sprite;
+  //     })
+  //   );
+  // };
   const removeAnimation = (spriteId, animationId) => {
     setSprites(
       sprites.map((sprite) => {
         if (sprite.id === spriteId) {
-          return {
+          // Remove the animation by filtering out the animationId
+          const updatedSprite = {
             ...sprite,
             animations: sprite.animations.filter((anim) => anim.id !== animationId),
           };
+  
+          // Log the updated sprite to check the state
+          console.log('Updated Sprite after remove: ', updatedSprite);
+  
+          return updatedSprite;
         }
         return sprite;
       })
     );
   };
-
+  
   const clearAnimations = (spriteId) => {
     setSprites(
       sprites.map((sprite) => {
@@ -301,28 +320,32 @@ export default function App() {
   
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="bg-blue-100 pt-6 font-sans">
-        <div className="h-screen overflow-hidden flex flex-row">
-          <div className="flex-1 h-screen overflow-hidden flex flex-row bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
+      <div className="bg-blue-100 pt-6 font-sans min-h-screen overflow-auto">
+        <div className="flex flex-col md:flex-row min-h-screen">
+          {/* Left Panel: Sidebar + MidArea */}
+          <div className="flex-1 flex flex-col md:flex-row h-full overflow-auto bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
             <Sidebar
               addAnimation={addAnimation}
               addSprite={addSprite}
               resetSprites={resetSprites}
-              repeatLastAnimation={repeatLastAnimation} // Pass repeat function
+              repeatLastAnimation={repeatLastAnimation}
             />
-            <MidArea
-              sprites={sprites}
-           
-  setSprites={setSprites}
-              setActiveSprite={setActiveSprite}
-              activeSprite={sprites.find((s) => s.isActive)}
-              removeAnimation={removeAnimation}
-              clearAnimations={clearAnimations}
-              resetSprites={resetSprites} // Pass reset function to MidArea
-              moveAnimationToMidArea={moveAnimationToMidArea} // Pass the function to handle dropping
-            />
+            <div className="flex-1 overflow-y-auto">
+              <MidArea
+                sprites={sprites}
+                setSprites={setSprites}
+                setActiveSprite={setActiveSprite}
+                activeSprite={sprites.find((s) => s.isActive)}
+                removeAnimation={removeAnimation}
+                clearAnimations={clearAnimations}
+                resetSprites={resetSprites}
+                moveAnimationToMidArea={moveAnimationToMidArea}
+              />
+            </div>
           </div>
-          <div className="w-1/3 h-screen overflow-hidden flex flex-row bg-white border-t border-l border-gray-200 rounded-tl-xl ml-2">
+  
+          {/* Right Panel: PreviewArea */}
+          <div className="w-full md:w-1/3 h-1/2 md:h-full overflow-auto bg-white border-t border-l border-gray-200 rounded-tl-xl ml-0 md:ml-2">
             <PreviewArea
               sprites={sprites}
               isPlaying={isPlaying}
@@ -337,4 +360,6 @@ export default function App() {
     </DndProvider>
   );
 }
+
+
 
