@@ -198,10 +198,10 @@ export default function Sidebar({ addAnimation, addSprite, resetSprites, repeatL
           <span className="w-5 h-5 bg-yellow-400 rounded-full"></span>
           <span className="text-base text-black">Events</span>
         </div>
-        <div className="flex items-center space-x-2 my-2 cursor-pointer" onClick={() => setSelectedCategory("control")}>
+        {/* <div className="flex items-center space-x-2 my-2 cursor-pointer" onClick={() => setSelectedCategory("control")}>
           <span className="w-5 h-5 bg-green-500 rounded-full"></span>
           <span className="text-base text-black">Control</span>
-        </div>
+        </div> */}
       </div>
 
       {/* Action Panel */}
