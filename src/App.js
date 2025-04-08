@@ -145,6 +145,7 @@
 //     </div>
 //   );
 // }
+// App.js
 import React, { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -162,20 +163,22 @@ export default function App() {
       rotation: 0,
       animations: [],
       isActive: true,
+      say: "",
     },
   ]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [lastAnimation, setLastAnimation] = useState(null); // Track last animation for repeat
+  const [lastAnimation, setLastAnimation] = useState(null);
 
   const addSprite = () => {
     const newSprite = {
-      id: Date.now(), // Unique ID
+      id: Date.now(),
       name: `Cat ${sprites.length + 1}`,
-      x: Math.random() * 200 - 100, // Random position between -100 and 100
+      x: Math.random() * 200 - 100,
       y: Math.random() * 200 - 100,
       rotation: 0,
       animations: [],
       isActive: false,
+      say: "",
     };
     setSprites([...sprites, newSprite]);
   };
@@ -190,12 +193,11 @@ export default function App() {
   };
 
   const addAnimation = (animation) => {
-    setSprites(
-      sprites.map((sprite) => {
+    setSprites((prevSprites) =>
+      prevSprites.map((sprite) => {
         if (sprite.isActive) {
           const newSprite = { ...sprite };
 
-          // Process animation immediately
           switch (animation.type) {
             case "move":
               const radians = (newSprite.rotation * Math.PI) / 180;
@@ -204,79 +206,100 @@ export default function App() {
               break;
             case "turn":
               newSprite.rotation += animation.value;
-              newSprite.rotation = newSprite.rotation % 360;
+              newSprite.rotation %= 360;
               break;
             case "goto":
               if (animation.random) {
-                newSprite.x = Math.random() * 400 - 200; // Random X between -200 and 200
-                newSprite.y = Math.random() * 400 - 200; // Random Y between -200 and 200
+                newSprite.x = Math.random() * 400 - 200;
+                newSprite.y = Math.random() * 400 - 200;
               } else {
                 newSprite.x = animation.x || 0;
                 newSprite.y = animation.y || 0;
+              }
+              break;
+            case "say":
+              newSprite.say = animation.text;
+              if (animation.duration) {
+                setTimeout(() => {
+                  setSprites((spritesAfterDelay) =>
+                    spritesAfterDelay.map((s) =>
+                      s.id === sprite.id ? { ...s, say: "" } : s
+                    )
+                  );
+                }, animation.duration * 1000);
               }
               break;
             default:
               break;
           }
 
-          // Add the animation to the list so it can still be played if necessary
           newSprite.animations = [
             ...newSprite.animations,
-            {
-              ...animation,
-              id: Date.now(), // Add unique ID to each animation
-            },
+            { ...animation, id: Date.now() },
           ];
+          return newSprite;
+        }
+        return sprite;
+      })
+    );
+
+    setLastAnimation(animation);
+  };
+
+  const repeatLastAnimation = () => {
+    if (lastAnimation) {
+      addAnimation(lastAnimation);
+    }
+  };
+
+  const removeAnimation = (spriteId, animationId) => {
+    setSprites((prevSprites) =>
+      prevSprites.map((sprite) => {
+        if (sprite.id === spriteId) {
+          const updatedAnimations = sprite.animations.filter(
+            (anim) => anim.id !== animationId
+          );
+
+          let newSprite = {
+            ...sprite,
+            x: 0,
+            y: 0,
+            rotation: 0,
+            animations: updatedAnimations,
+            say: "",
+          };
+
+          updatedAnimations.forEach((anim) => {
+            if (anim.type === "move") {
+              const radians = (newSprite.rotation * Math.PI) / 180;
+              newSprite.x += anim.value * Math.cos(radians);
+              newSprite.y += anim.value * Math.sin(radians);
+            } else if (anim.type === "turn") {
+              newSprite.rotation += anim.value;
+            } else if (anim.type === "goto") {
+              newSprite.x = anim.x;
+              newSprite.y = anim.y;
+            } else if (anim.type === "say") {
+              newSprite.say = anim.text;
+              if (anim.duration) {
+                setTimeout(() => {
+                  setSprites((spritesAfterDelay) =>
+                    spritesAfterDelay.map((s) =>
+                      s.id === sprite.id ? { ...s, say: "" } : s
+                    )
+                  );
+                }, anim.duration * 1000);
+              }
+            }
+          });
 
           return newSprite;
         }
         return sprite;
       })
     );
-    
-    // Save the last animation for repeat functionality
-    setLastAnimation(animation);
   };
 
-  const repeatLastAnimation = () => {
-    if (lastAnimation) {
-      addAnimation(lastAnimation); // Repeat the last animation
-    }
-  };
-
-  // const removeAnimation = (spriteId, animationId) => {
-  //   setSprites(
-  //     sprites.map((sprite) => {
-  //       if (sprite.id === spriteId) {
-  //         return {
-  //           ...sprite,
-  //           animations: sprite.animations.filter((anim) => anim.id !== animationId),
-  //         };
-  //       }
-  //       return sprite;
-  //     })
-  //   );
-  // };
-  const removeAnimation = (spriteId, animationId) => {
-    setSprites(
-      sprites.map((sprite) => {
-        if (sprite.id === spriteId) {
-          // Remove the animation by filtering out the animationId
-          const updatedSprite = {
-            ...sprite,
-            animations: sprite.animations.filter((anim) => anim.id !== animationId),
-          };
-  
-          // Log the updated sprite to check the state
-          console.log('Updated Sprite after remove: ', updatedSprite);
-  
-          return updatedSprite;
-        }
-        return sprite;
-      })
-    );
-  };
-  
   const clearAnimations = (spriteId) => {
     setSprites(
       sprites.map((sprite) => {
@@ -284,6 +307,10 @@ export default function App() {
           return {
             ...sprite,
             animations: [],
+            x: 0,
+            y: 0,
+            rotation: 0,
+            say: "",
           };
         }
         return sprite;
@@ -299,6 +326,9 @@ export default function App() {
         y: 0,
         rotation: 0,
         animations: [],
+        say: "",
+        currentAnimationIndex: 0,
+        isHero: false,
       }))
     );
     setIsPlaying(false);
@@ -310,19 +340,18 @@ export default function App() {
         if (sprite.id === spriteId) {
           return {
             ...sprite,
-            animations: [...sprite.animations, animation], // Add the new animation to the existing list
+            animations: [...sprite.animations, animation],
           };
         }
         return sprite;
       })
     );
   };
-  
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="bg-blue-100 pt-6 font-sans min-h-screen overflow-auto">
         <div className="flex flex-col md:flex-row min-h-screen">
-          {/* Left Panel: Sidebar + MidArea */}
           <div className="flex-1 flex flex-col md:flex-row h-full overflow-auto bg-white border-t border-r border-gray-200 rounded-tr-xl mr-2">
             <Sidebar
               addAnimation={addAnimation}
@@ -343,16 +372,13 @@ export default function App() {
               />
             </div>
           </div>
-  
-          {/* Right Panel: PreviewArea */}
+
           <div className="w-full md:w-1/3 h-1/2 md:h-full overflow-auto bg-white border-t border-l border-gray-200 rounded-tl-xl ml-0 md:ml-2">
             <PreviewArea
               sprites={sprites}
               isPlaying={isPlaying}
               setIsPlaying={setIsPlaying}
               setSprites={setSprites}
-              playAnimations={() => setIsPlaying(true)}
-              stopAnimations={() => setIsPlaying(false)}
             />
           </div>
         </div>
@@ -360,6 +386,8 @@ export default function App() {
     </DndProvider>
   );
 }
+
+
 
 
 
